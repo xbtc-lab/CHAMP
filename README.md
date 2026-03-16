@@ -14,63 +14,72 @@ The workflow of CHAMP unfolds in a three-stage hierarchical process designed to 
 
 ![overview.png](overview.png)
 
-1.  **Dual-view Graph Encoding for Structural Completeness:** An input molecule is decomposed into two parallel graphical representations: a standard atom-level graph and a coarse-grained motif-level graph. The motif graph is processed by our innovative **(b) Pairwise-Aggregating Bond-Aware Motif Encoder (PABME)**, which generates structurally complete motif representations by explicitly modeling their internal topology.
+The framework is organized around three conceptual stages:
 
-2.  **Function-aware Refinement for Discriminability:** The initial motif embeddings, while structurally sound, are refined to be function-aware. Our **(c) Type-Domain-Label Constrained Contrastive Learning (TDL-CCL)** module sculpts the embedding space using property-label supervision. It trains the model to distinguish between motifs that are structurally homologous yet functionally divergent, imbueing the representations with high discriminative power.
+1. **Motif construction and structural encoding**
+   CHAMP builds motif-level representations on top of atom-level molecular graphs and models internal motif topology to preserve structural information.
 
-3.  **Hierarchical Fusion and Molecular Prediction:** Finally, the **(d) Hierarchical Motif-Guided Synergistic Attention Framework (HMSAF)** performs dynamic cross-scale fusion. It leverages high-level motif semantics to provide top-down guidance to atomic attention. Through a symbiotic process involving contextual gating and inter-head synergy, it proactively resolves informational conflicts, ensuring features are mutually refined. The resulting unified molecular fingerprint is fed into an MLP for end-to-end property prediction.
+2. **Function-aware motif refinement**
+   CHAMP refines motif embeddings through supervised contrastive constraints so that structurally similar motifs with different functional roles can be distinguished more effectively.
 
-## Core Innovative Components
+3. **Hierarchical atom-motif fusion**
+   CHAMP uses motif-level semantics to guide atom-level aggregation and performs cross-scale fusion through gating and inter-head interaction mechanisms.
 
-### 1. PABME: Pairwise-Aggregating Bond-Aware Motif Encoder
+The current public release focuses on the core modules and the main training workflow implemented in this repository.
 
-*   **Problem:** Conventional models often treat motifs as a "bag-of-atoms," neglecting the critical semantics encoded in internal topology and chemical bonds.
-*   **Innovation:** PABME explicitly models **atom-bond-atom** interactions. It employs a **dual-attention aggregation strategy** to capture both the importance of individual atoms and the relationships between atom pairs.
-*   **Outcome:** Yields motif embeddings that faithfully preserve internal structural fidelity, achieving **Structural Completeness**.
+## Repository Scope
 
-### 2. TDL-CCL: Type-Domain-Label Constrained Contrastive Learning
+The released codebase includes:
 
-*   **Problem:** The label-agnostic nature of conventional contrastive learning fails to differentiate between structurally similar motifs with distinct chemical functions.
-*   **Innovation:** TDL-CCL introduces a novel **(Type, Domain, Label)** triplet constraint for sampling. It compels the model to discern the subtle structural variations that drive functional outcomes by contrasting structurally homologous but functionally divergent motifs.
-*   **Outcome:** Sculpts an embedding space governed by **chemical function** rather than superficial topology, achieving **Functional Discriminability**.
+- the core model components in `Model/`,
+- motif extraction and motif-graph construction in `motif_extract/`,
+- shared helper utilities in `utils/`,
+- argument configuration in `Args.py`,
+- motif-aware dataset preparation in `motif_spilit.py`,
+- the main public training script in `main_classification.py`,
+- the dependency specification in `requirements.txt`.
 
-### 3. HMSAF: Hierarchical Motif-Guided Synergistic Attention Framework
+Local folders such as `dataset/`, `best_model/`, `.idea/`, and `__pycache__/` may appear in the working directory, but they should be interpreted as local resources or development artifacts rather than as the conceptual core of the released source implementation.
 
-*   **Problem:** Naive fusion mechanisms (e.g., concatenation or pooling) lead to informational conflicts and redundancy between atomic and motif-level features.
-*   **Innovation:** HMSAF implements a dynamic **"guidance-fusion-regulation"** process:
-    *   **Guidance:** Top-down semantic signals from motifs steer atomic-level attention.
-    *   **Fusion & Regulation:** A symbiotic fusion process featuring **Contextual Gating** and **Inter-Head Synergistic Attention** proactively modulates signals and forces cross-scale alignment.
-*   **Outcome:** Achieves true **Cross-scale Synergy**, where features from different granularities are not merely combined but are mutually refined into a functionally coherent representation.
+## Repository Structure
 
-## Project Structure
+The current directory structure of the released code is:
 
+```text
+Code/
+├── Args.py
+├── main_classification.py
+├── motif_spilit.py
+├── overview.png
+├── README.md
+├── requirements.txt
+├── Model/
+│   ├── HMSAF.py
+│   ├── atom_motif_attention.py
+│   ├── contrastive_learning.py
+│   └──  motif_embedding.py
+└──  motif_extract/
+    ├── mol_motif.py
+    └──  motif_graph.py
 ```
-CHAMP/
-├── Model/              # Model definitions (PABME, TDL-CCL, HMSAF, etc.)
-├── motif_extract/      # Motif extraction and graph construction modules
-├── Experiment/         # Experimental results and visualization outputs
-├── dataset/            # Dataset files
-├── best_model/         # Directory for saving best-performing models
-├── *.py                # Main execution scripts
-├── requirements.txt    # List of dependencies
-└── Args.py             # Configuration for command-line arguments
-```
 
-## Key Advantages
+For readers who only want to understand or reuse the main implementation, the primary source files are:
 
-1.  **State-of-the-Art Performance:** Achieves leading results on 10 out of 11 challenging MoleculeNet benchmarks, demonstrating superior accuracy and generalizability.
-2.  **Chemical Interpretability:** The hierarchical, motif-centric design ensures that the model's decision-making process aligns closely with established chemical principles.
-3.  **Synergistic Multi-scale Modeling:** Moves beyond simple feature fusion to achieve true synergistic enhancement between atom- and motif-level information.
-4.  **Robustness and Flexibility:** The modular architecture supports both regression and classification tasks and can be readily extended to new applications in drug discovery and materials science.
+- `main_classification.py`
+- `Args.py`
+- `motif_spilit.py`
+- `Model/*.py`
+- `motif_extract/*.py`
 
----
+## Environment
 
-## Installation
+The released code was prepared for Python 3.9 and PyTorch-based execution.
+
+Install dependencies with:
 
 ```bash
 pip install -r requirements.txt
 ```
-
 **Main dependencies:**
 
 - PyTorch (1.12.0+cu113)
@@ -83,21 +92,37 @@ pip install -r requirements.txt
 
 ### Parameter Configuration
 
-Training parameters can be configured via `Args.py`:
+## Configuration
 
-- `--task`: Task type ('regression' or 'classification').
-- `--dataset`: Name of the dataset (e.g., 'ESOL', 'FreeSolv', 'MUTAG').
-- `--use_head_interaction`: Enable Inter-Head Synergistic Attention (HMSAF component).
-- `--use_gating`: Enable the Contextual Gating Mechanism (HMSAF component).
-- `--alpha/--beta`: Set the contrastive learning loss ratio (TDL-CCL component).
+The argument configuration is defined in `Args.py`.
 
-### Running Experiments
+Important arguments in the current release include:
 
-```bash
-python main_classification.py --dataset BACE --use_head_interaction True --use_gating True
-```
+- `--dataset`: dataset name
+- `--data_dir`: dataset directory
+- `--node_feature_dim`: atom feature dimension
+- `--edge_feature_dim`: edge feature dimension
+- `--hidden_dim`: hidden representation dimension
+- `--batch_size`: batch size
+- `--epochs`: number of epochs
+- `--lr`: learning rate
+- `--weight_decay`: optimizer weight decay
+- `--patience`: scheduler patience
+- `--factor`: scheduler decay factor
+- `--loss_fn`: loss function option
+- `--alpha`: ring-level contrastive loss weight
+- `--beta`: non-ring contrastive loss weight
+- `--Pair_MLP`: whether to enable the pairwise motif encoder option
+- `--is_contrastive`: whether to enable contrastive learning
+- `--use_Guide`: whether to enable motif guidance
+- `--use_gating`: whether to enable contextual gating
+- `--use_head_interaction`: whether to enable inter-head interaction
+- `--label_thresh_ratio`: threshold ratio used in motif comparison
+- `--save_dir`: checkpoint directory
+- `--log_dir`: log directory
+- `--device`: execution device
 
-## Supported Datasets
+### Supported Datasets
 
 The framework supports a wide range of datasets from MoleculeNet, including:
 
@@ -105,3 +130,8 @@ The framework supports a wide range of datasets from MoleculeNet, including:
 - **Classification Tasks:** MUTAG, HIV, BACE, Tox21.
 
 Datasets are expected in a standard graph format, containing node features, edge connectivity, and molecular labels.
+
+### Running Experiments
+
+```bash
+python main_classification.py --dataset BACE --use_head_interaction True --use_gating True
