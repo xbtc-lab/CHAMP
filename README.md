@@ -127,7 +127,7 @@ Important arguments in the current release include:
 The framework supports a wide range of datasets from MoleculeNet, including:
 
 - **Regression Tasks:** ESOL, FreeSolv, Lipophilicity.
-- **Classification Tasks:** MUTAG, HIV, BACE, Tox21.
+- **Classification Tasks:** HIV, BACE, Tox21, ClinTox, BBBP, SIDER, ToxCast
 
 Datasets are expected in a standard graph format, containing node features, edge connectivity, and molecular labels.
 
