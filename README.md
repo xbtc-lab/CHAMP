@@ -2,6 +2,12 @@
 
 This repository provides the official PyTorch implementation for **CHAMP (Coupled Hierarchical Atom-Motif Predictor)**, a novel hierarchical Graph Neural Network framework designed to achieve state-of-the-art performance in molecular property prediction.
 
+## paper
+
+The paper corresponding to this repository has been accepted by *Expert Systems with Applications*.
+
+- **DOI:** [10.1016/j.eswa.2026.132735](https://doi.org/10.1016/j.eswa.2026.132735)
+
 ## Introduction
 
 CHAMP is engineered to address two central challenges in GNN-based molecular science: achieving **Structural Completeness** in motif representations and ensuring **Functional Discriminability** through context-aware learning. It systematically overcomes the limitations of conventional models by introducing a dynamic **"guidance-fusion-regulation"** process that enables true **Synergistic Multi-scale Integration**.
